@@ -87,6 +87,12 @@ func main() {
 	envName := flag.String("env", "", "Environment to deploy")
 	flag.Parse()
 
+	if *serverName == "" || *envName == "" {
+		fmt.Println("Usage: deploy --server=serverName --env=envName")
+		fmt.Println("Example: deploy --server=testserver --env=prod")
+		os.Exit(1)
+	}
+
 	// Load configuration
 	file, err := ioutil.ReadFile("servers.json")
 	if err != nil {
