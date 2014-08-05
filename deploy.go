@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
+	"path/filepath"
 )
 
 type (
@@ -79,6 +81,23 @@ func deploy(serverList ServerList, serverName, environment string) (string, erro
 	return "", errors.New(fmt.Sprintf("No such server or environment found (%s, %s)", serverName, environment))
 }
 
+// Returns the path to the executable. Borrowed from
+// https://github.com/gyepisam/redux/blob/master/redux/install.go#L90
+func executingDir() (name string, err error) {
+	name = os.Args[0]
+
+	if name[0] == '.' {
+		name, err = filepath.Abs(name)
+		if err == nil {
+			name = filepath.Clean(name)
+		}
+	} else {
+		name, err = exec.LookPath(filepath.Clean(name))
+	}
+
+	return filepath.Dir(name), err
+}
+
 func main() {
 	fmt.Println("Deploy v0.0.1")
 
@@ -93,10 +112,19 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Load configuration
-	file, err := ioutil.ReadFile("servers.json")
+	// Find path to config file
+	var configFile string
+	dir, err := executingDir()
 	if err != nil {
-		fmt.Printf("Could not open servers.json: %s\n", err)
+		configFile = "servers.json"
+	} else {
+		configFile = filepath.Join(dir, "servers.json")
+	}
+
+	// Load configuration
+	file, err := ioutil.ReadFile(configFile)
+	if err != nil {
+		fmt.Printf("Could not open servers.json: %s (tried with path %s)\n", err, configFile)
 		os.Exit(1)
 	}
 
