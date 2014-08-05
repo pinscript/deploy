@@ -1,0 +1,17 @@
+{
+    "servers": [
+        {
+            "name": "testserver",
+            "envs": [
+                {
+                    "name": "prod",
+                    "server": "8.8.8.8:22",
+                    "user": "root",
+                    "pass": "JDkan43",
+					"dir": "/var/www/app",
+					"command": "./deploy.sh"
+                }
+            ]
+        }
+    ]
+}
